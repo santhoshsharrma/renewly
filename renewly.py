@@ -6,8 +6,10 @@ import json
 subs = []
 DATA_FILE = "subscriptions.json"
 
+
 def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")
+
 
 def load_subscriptions():
     global subs
@@ -22,6 +24,7 @@ def load_subscriptions():
                     "date": datetime.datetime.strptime(sub["date"], "%d-%m-%Y")
                 })
 
+
 def save_subscriptions():
     with open(DATA_FILE, "w") as file:
         data = []
@@ -32,6 +35,7 @@ def save_subscriptions():
                 "date": sub["date"].strftime("%d-%m-%Y")
             })
         json.dump(data, file, indent=4)
+
 
 def welcome_message():
     clear_screen()
@@ -47,6 +51,7 @@ def welcome_message():
     print("Welcome to Renewly - Your Subscription Manager!")
     print("\033[0m")
 
+
 def login():
     welcome_message()
     input("Enter your name: ")
@@ -54,6 +59,7 @@ def login():
     print("\nWelcome to Renewly!\n")
     time.sleep(1)
     return True
+
 
 def addsubs():
     clear_screen()
@@ -79,6 +85,7 @@ def addsubs():
     print("\nSubscription added successfully!")
     time.sleep(1)
 
+
 def viewsubs():
     clear_screen()
     if not subs:
@@ -96,6 +103,7 @@ def viewsubs():
         print(f"Renewal: {sub['date'].strftime('%d-%m-%Y')}")
         print(f"Days left: {days_left} days\n")
     input("Press Enter to return to menu...")
+
 
 def updatesubs():
     clear_screen()
@@ -121,6 +129,8 @@ def updatesubs():
             return
     print("Subscription not found.")
     time.sleep(1)
+
+
 def deletesubs():
     clear_screen()
     name = input("Enter subscription name to delete: ")
@@ -133,6 +143,8 @@ def deletesubs():
             return
     print("Subscription not found.")
     time.sleep(1)
+
+
 def menu():
     while True:
         clear_screen()
@@ -157,6 +169,8 @@ def menu():
         else:
             print("Invalid choice.")
             time.sleep(1)
+
+
 if login():
     load_subscriptions()
     menu()
