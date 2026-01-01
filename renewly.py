@@ -1,106 +1,145 @@
 import datetime
 import os
 import time
+import json
+
 subs=[]
+DATA_FILE="subscriptions.json"
+
 def clear_screen():
-    os.system('cls' if os.name=='nt'else'clear')
+    os.system("cls" if os.name=="nt" else "clear")
+
+def load_subscriptions():
+    global subs
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as file:
+            data=json.load(file)
+            subs=[]
+            for sub in data:
+                subs.append({
+                    "name": sub["name"],
+                    "amount": sub["amount"],
+                    "date": datetime.datetime.strptime(sub["date"], "%d-%m-%Y")
+                })
+
+def save_subscriptions():
+    with open(DATA_FILE, "w") as file:
+        data=[]
+        for sub in subs:
+            data.append({
+                "name": sub["name"],
+                "amount": sub["amount"],
+                "date": sub["date"].strftime("%d-%m-%Y")
+            })
+        json.dump(data, file, indent=4)
+
 def welcome_message():
     clear_screen()
-    print("\033[1;32;40m" + """ 
+    print("\033[1;32m")
+    print("""
    _____                          _    
-  |  __ \                        | |   
+  |  __ \\                        | |   
   | |__) |_ _ _ __ ___   __ _ _ __| | __
-  |  ___/ _` | '_ ` _ \ / _` | '__| |/ /
+  |  ___/ _` | '_ ` _ \\ / _` | '__| |/ /
   | |  | (_| | | | | | | (_| | |  |   < 
-  |_|   \__,_|_| |_| |_|\__,_|_|  |_|\_\\
-    "Welcome to Renewly - Your Subscription Manager!"\
-    """ + "\033[0m")
-    print("\033[1;33m"+"Manage your subscriptions easily and efficiently!\n"+"\033[0m")
+  |_|   \\__,_|_| |_| |_|\\__,_|_|  |_|\\_\\
+    """)
+    print("Welcome to Renewly - Your Subscription Manager!")
+    print("\033[0m")
+
 def login():
     welcome_message()
-    username=input("Enter your name: ")
-    password=input("Choose your Password: ")
-    print(f"\033[1;34mWelcome to Renewly,{username}!!\n\033[0m")
+    input("Enter your name: ")
+    input("Choose your password: ")
+    print("\nWelcome to Renewly!\n")
+    time.sleep(1)
     return True
+
 def addsubs():
     clear_screen()
-    print("\033[1;35m"+"Adding a new subscription..."+"\033[0m")
-    name=input("Enter the subscription name: ")
-    amount=input("Enter the subscription amount: ")
-    while not amount.replace('.', '', 1).isdigit():
-        print("\033[1;31mInvalid amount. Please enter a valid number.\033[0m")
-        amount=input("Enter the subscription amount: ")
-    date_str=input("Enter the renewal date for your subscription (DD-MM-YYYY): ")
+    print("\033[1;35mAdding a new subscription...\033[0m\n")
+    name=input("Enter subscription name: ")
+    amount=input("Enter subscription amount: ")
+    while not amount.replace(".", "", 1).isdigit():
+        print("Invalid amount.")
+        amount=input("Enter subscription amount: ")
+    date_str=input("Enter renewal date (DD-MM-YYYY): ")
     try:
         renewal_date=datetime.datetime.strptime(date_str, "%d-%m-%Y")
     except ValueError:
-        print("\033[1;31mInvalid date format. Please enter date in DD-MM-YYYY format.\033[0m")
+        print("Invalid date format.")
+        time.sleep(1)
         return
     subs.append({
-        "name":name,
-        "amount":float(amount),
-        "date":renewal_date
+        "name": name,
+        "amount": float(amount),
+        "date": renewal_date
     })
-    print("\033[1;32mSubscription added successfully!\n\033[0m")
+    save_subscriptions()
+    print("\nSubscription added successfully!")
     time.sleep(1)
+
 def viewsubs():
     clear_screen()
     if not subs:
-        print("\033[1;33mNo subscriptions found. Add them into your Renewly List.\n\033[0m")
+        print("No subscriptions found.")
+        time.sleep(1)
         return
-    print("\033[1;36mYour Subscriptions are: \033[0m")
+    print("\033[1;36mYour Subscriptions:\033[0m\n")
     for sub in subs:
-        days_until_renewal = (sub['date'] - datetime.datetime.now()).days
-        print(f"\033[1;34mSubscription Name:\033[0m {sub['name']}")
-        print(f"\033[1;34mSubscription Amount:\033[0m ${sub['amount']}")
-        print(f"\033[1;34mUpcoming Renewal Date:\033[0m {sub['date'].strftime('%d-%m-%Y')}")
-        print(f"\033[1;32mDays until renewal: {days_until_renewal} days\033[0m\n")
-    print("\033[1;35mYou’re all set!\033[0m")
-    time.sleep(2)
+        days_left=(sub["date"]-datetime.datetime.now()).days
+        print(f"Name   : {sub['name']}")
+        print(f"Amount : ${sub['amount']}")
+        print(f"Renewal: {sub['date'].strftime('%d-%m-%Y')}")
+        print(f"Days left: {days_left} days\n")
+    input("Press Enter to return to menu...")
+
 def updatesubs():
     clear_screen()
-    print("\033[1;36mUpdating a subscription...\033[0m")
-    name = input("Enter your subscription name to update: ")
+    name=input("Enter subscription name to update: ")
     for sub in subs:
         if sub["name"].lower()==name.lower():
-            sub["name"]=input("Enter new subscription name: ")
-            sub["amount"]=input("Enter new amount: ")
-            while not sub["amount"].replace('.', '', 1).isdigit():
-                print("\033[1;31mInvalid amount. Please enter a valid number.\033[0m")
-                sub["amount"]=input("Enter new amount: ")
-            date_str=input("Enter new renewal date (DD-MM-YYYY): ")
+            sub["name"]=input("New name: ")
+            amount=input("New amount: ")
+            while not amount.replace(".", "", 1).isdigit():
+                print("Invalid amount.")
+                amount=input("New amount: ")
+            sub["amount"]=float(amount)
+            date_str=input("New renewal date (DD-MM-YYYY): ")
             try:
                 sub["date"]=datetime.datetime.strptime(date_str, "%d-%m-%Y")
             except ValueError:
-                print("\033[1;31mInvalid date format. Please enter date in given format.\033[0m")
+                print("Invalid date.")
+                time.sleep(1)
                 return
-            print("\033[1;32mSubscription updated successfully!\n\033[0m")
+            save_subscriptions()
+            print("\nSubscription updated successfully!")
             time.sleep(1)
             return
-    print("\033[1;31mSubscription not found.\n\033[0m")
+    print("Subscription not found.")
     time.sleep(1)
 def deletesubs():
     clear_screen()
-    print("\033[1;33mDeleting a subscription...\033[0m")
-    name = input("Enter subscription name to delete: ")
+    name=input("Enter subscription name to delete: ")
     for sub in subs:
         if sub["name"].lower()==name.lower():
-            sub.remove(sub)
-            print("\033[1;31mSubscription deleted successfully!\n\033[0m")
+            subs.remove(sub)
+            save_subscriptions()
+            print("\nSubscription deleted successfully!")
             time.sleep(1)
             return
-    print("\033[1;31mSubscription not found.\n\033[0m")
+    print("Subscription not found.")
     time.sleep(1)
 def menu():
     while True:
         clear_screen()
-        print("\033[1;32m Please choose an option:\033[0m")
-        print("\033[1;34m 1. Add a Subscription\033[0m")
-        print("\033[1;34m 2. View Your Subscriptions\033[0m")
-        print("\033[1;34m 3. Update Your Subscription\033[0m")
-        print("\033[1;34m 4. Delete Your Subscription\033[0m")
-        print("\033[1;35m 5. Exit\033[0m")
-        choice=input("\033[1;33m Enter your choice: \033[0m")
+        print("\033[1;32mChoose an option:\033[0m")
+        print("1. Add Subscription")
+        print("2. View Subscriptions")
+        print("3. Update Subscription")
+        print("4. Delete Subscription")
+        print("5. Exit")
+        choice=input("\nEnter choice: ")
         if choice=="1":
             addsubs()
         elif choice=="2":
@@ -110,12 +149,11 @@ def menu():
         elif choice=="4":
             deletesubs()
         elif choice=="5":
-            print("\033[1;32mThank you for using Renewly! See you soon :) \033[0m")
+            print("\nThank you for using Renewly!")
             break
         else:
-            print("\033[1;31mInvalid choice. Please try again.\033[0m")
+            print("Invalid choice.")
             time.sleep(1)
 if login():
+    load_subscriptions()
     menu()
-
-
