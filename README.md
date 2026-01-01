@@ -46,15 +46,13 @@ python renewly.py
 ```
 
 ## Project Structure
-
-
+```
 renewly/
 ├── renewly.py        # Core CLI application
 ├── README.md         # Documentation
 ├── .gitignore        # Python ignores
 └── LICENSE           # MIT License
-
-
+```
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
