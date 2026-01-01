@@ -104,6 +104,21 @@ def viewsubs():
         print(f"Days left: {days_left} days\n")
     input("Press Enter to return to menu...")
 
+def summary():
+    clear_screen()
+    if not subs:
+        print("No subscriptions found.")
+        time.sleep(1)
+        return
+    total_subs=len(subs)
+    total_spend=sum(sub["amount"] for sub in subs)
+    highest=max(subs, key=lambda sub: sub["amount"])
+    print("\033[1;36m Your Subscription Insights\033[0m")
+    print("-"*20)
+    print(f"Total subscriptions : {total_subs}")
+    print(f"Total monthly spend : ${total_spend}")
+    print(f"Most expensive      : {highest['name']} (${highest['amount']})")
+    input("\nPress Enter to return to menu...")
 
 def updatesubs():
     clear_screen()
@@ -151,26 +166,27 @@ def menu():
         print("\033[1;32mChoose an option:\033[0m")
         print("1. Add Subscription")
         print("2. View Subscriptions")
-        print("3. Update Subscription")
-        print("4. Delete Subscription")
-        print("5. Exit")
+        print("3. Subscription Insights")
+        print("4. Update Subscription")
+        print("5. Delete Subscription")
+        print("6. Exit")
         choice = input("\nEnter choice: ")
         if choice == "1":
             addsubs()
         elif choice == "2":
             viewsubs()
-        elif choice == "3":
-            updatesubs()
+        elif choice=="3":
+            summary()
         elif choice == "4":
-            deletesubs()
+            updatesubs()
         elif choice == "5":
+            deletesubs()
+        elif choice == "6":
             print("\nThank you for using Renewly!")
             break
-        else:
+    else:
             print("Invalid choice.")
             time.sleep(1)
-
-
 if login():
     load_subscriptions()
     menu()
